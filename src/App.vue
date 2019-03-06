@@ -8,6 +8,7 @@
     import Socket from './js/Socket.js';
 
     const server = new Socket('ws://localhost:8005');
+    console.log(server);
 
     export default {
         name: 'app',
@@ -22,9 +23,12 @@
         mounted() {
             server.on('open', async () => {
                 await this.debugSend('ping');
+
                 setInterval(async ()=>{
                     this.volume = await server.send('getVolume');
                 }, 50);
+
+                // console.log(await this.debugSend('getProcesses'));
             });
         },
         methods: {

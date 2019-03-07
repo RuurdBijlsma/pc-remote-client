@@ -20,9 +20,13 @@
             return {
                 mouseIsDown: false,
                 lastTouchPos: [0, 0],
+                lastScroll: 0,
                 lastSend: 0,
                 delta: [0, 0],
-                sendRate: 15
+                scrollDelta: 0,
+                sendRate: 15,
+                context: null,
+                canvas: null
             }
         },
         methods: {
@@ -46,7 +50,7 @@
                 if (e.touches && e.touches.length === 1)
                     this.lastTouchPos = this.getTouchPosition(e.touches[0]);
                 else if (e.touches && e.touches.length === 2) {
-                    //scroll
+                    this.lastScroll = this.getTouchPosition(e.touches[0])[1];
                 }
             },
             touchMove: async function (e) {
@@ -55,6 +59,12 @@
                         this.moveCursor(e);
                     else if (e.touches && e.touches.length === 2)
                         this.scroll(e);
+            },
+            scroll(e) {
+                let [x, y] = this.getTouchPosition(e.touches[0]);
+                let scrollDelta = this.lastScroll - y;
+                this.lastScroll = y;
+                this.server.send('scroll', Math.round(scrollDelta * -12));
             },
             moveCursor(e) {
                 let [x, y] = this.getTouchPosition(e.touches[0]);
@@ -66,7 +76,6 @@
 
                 let now = performance.now();
                 if (now - this.lastSend > this.sendRate) {
-                    console.log('send', this.delta);
                     this.server.send('moveMouse', this.delta.map(d => {
 
                         let isNeg = d < 0;
@@ -80,8 +89,11 @@
                     this.lastSend = now;
                 }
             }
-        },
+        }
+        ,
         async mounted() {
+            this.canvas = document.querySelector('.trackpad');
+            this.context = this.canvas.getContext('2d');
         }
     }
 </script>

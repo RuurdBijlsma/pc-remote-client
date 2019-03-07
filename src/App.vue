@@ -28,7 +28,7 @@
     import PowerPage from "./components/PowerPage";
     import RemotePage from "./components/RemotePage";
 
-    const server = new Socket('ws://localhost:8005');
+    const server = new Socket('ws://192.168.178.15:8005');
     console.log(server);
 
     export default {
@@ -40,7 +40,7 @@
         },
         data() {
             return {
-                page: 1,
+                page: 0,
                 server
             }
         },

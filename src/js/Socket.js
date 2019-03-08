@@ -1,12 +1,20 @@
 export default class Socket {
-    constructor(ip) {
+    constructor() {
+        this.events = {};
+    }
+
+    connect(ip) {
         this.ip = ip;
 
         this.socket = new WebSocket(this.ip);
         this.socket.onmessage = data => this.fire('rawMessage', data);
         this.socket.onopen = () => this.fire('open');
+    }
 
-        this.events = {};
+    get ready() {
+        if (!this.socket)
+            return false;
+        return this.socket.readyState === 1;
     }
 
     async send(action, value = '') {
@@ -26,7 +34,10 @@ export default class Socket {
                 }
             };
             this.on('rawMessage', onMessage);
-            this.socket.send(json);
+            if (this.ready)
+                this.socket.send(json);
+            else
+                console.log("Server not connected (yet), can't send", action, value);
         });
     }
 

@@ -27,9 +27,9 @@
     import InputPage from './components/InputPage.vue';
     import PowerPage from "./components/PowerPage";
     import RemotePage from "./components/RemotePage";
+    import Swal from 'sweetalert2';
 
-    const server = new Socket('ws://192.168.178.15:8005');
-    console.log(server);
+    let server=new Socket();
 
     export default {
         name: 'app',
@@ -44,11 +44,25 @@
                 server
             }
         },
-        mounted() {
+        async mounted() {
+            let ip;
+            if (localStorage.getItem('ip') === null) {
+                const {value: ipAddress} = await Swal.fire({
+                    title: 'Enter your server IP address',
+                    input: 'text',
+                    inputValidator: (value) => {
+                        return !value && 'You need to write something!'
+                    }
+                });
+                ip = ipAddress;
+                localStorage.ip = ipAddress;
+            }else{
+                ip = localStorage.ip;
+            }
+            server.connect('ws://' + ip + ':8005');
+            console.log(server);
             server.on('open', async () => {
                 await this.debugSend('ping');
-
-
                 // console.log(await this.debugSend('getProcesses'));
             });
         },
@@ -100,7 +114,7 @@
         flex-direction: row;
         justify-content: space-evenly;
         background-color: rgb(68, 47, 183);
-        color: rgba(255,255,255,0.4);
+        color: rgba(255, 255, 255, 0.4);
     }
 
     .bottom-bar > div {
@@ -111,11 +125,11 @@
         justify-content: space-evenly;
         cursor: pointer;
         border-radius: 50%;
-        font-size:12px;
+        font-size: 12px;
     }
 
     .bottom-bar > div[active] {
-        color: rgba(255,255,255,0.9);
+        color: rgba(255, 255, 255, 0.9);
     }
 
     .bottom-bar > div > * {

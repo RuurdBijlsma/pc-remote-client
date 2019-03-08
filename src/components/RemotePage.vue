@@ -148,9 +148,9 @@
             }
         },
         async mounted() {
-            console.log("Remote mounted", this.server.socket.readyState);
+            console.log("Remote mounted", this.server.ready);
 
-            if (this.server.socket.readyState !== 1)
+            if (!this.server.ready)
                 this.server.on('open', async () => this.updateVolume());
             else
                 this.updateVolume();
